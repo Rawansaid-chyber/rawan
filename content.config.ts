@@ -272,6 +272,12 @@ export const travel = {
     { lat: 23.5880, lng: 58.3829, label: 'Muscat, Oman' },
     { lat: 17.0151, lng: 54.0924, label: 'Salalah, Oman' },
     { lat: 22.9336, lng: 57.5300, label: 'Nizwa, Oman' },
+    { lat: 25.2048, lng: 55.2708, label: 'Dubai, UAE' },
+    { lat: 24.7136, lng: 46.6753, label: 'Riyadh, Saudi Arabia' },
+    { lat: 52.2297, lng: 21.0122, label: 'Warsaw, Poland' },
+    { lat: 52.5200, lng: 13.4050, label: 'Berlin, Germany' },
+    { lat: 48.2082, lng: 16.3738, label: 'Vienna, Austria' },
+    { lat: 48.8566, lng: 2.3522,  label: 'Paris, France' },
   ],
 };
 

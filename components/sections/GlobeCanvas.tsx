@@ -135,7 +135,7 @@ export default function GlobeCanvas({ visited }: { visited: Pin[] }) {
           cursor: isDragging ? 'grabbing' : 'grab',
           display: 'block',
         }}
-        aria-label="Interactive 3D globe showing Oman locations"
+        aria-label="Interactive 3D globe showing places visited"
       />
       <div style={{
         position: 'absolute', top: 12, left: 14,
