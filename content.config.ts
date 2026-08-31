@@ -152,6 +152,18 @@ export const stackIcons: Record<string, { label: string; color: string; siSlug?:
 
 export const projects = [
   {
+    id: 'telal-erp',
+    title: 'Telal Al-Bidaya ERP Suite',
+    namespace: 'property.erp.legal',
+    description:
+      'Full-stack engineering for a live bilingual (Arabic/English) property management and legal-vault ERP. Built FastAPI backend services, financial ledger logic, tenant CRM modules, and automated email integrations for Telal Al-Bidaya Real Estate.',
+    tags: ['Next.js', 'FastAPI', 'Full-Stack', 'ERP'],
+    badge: '26+ Modules',
+    badgeColor: 'amber',
+    icon: 'Globe',
+    image: null,
+  },
+  {
     id: 'mazoon',
     title: 'Mazoon Dairy App',
     namespace: 'graduation.project',

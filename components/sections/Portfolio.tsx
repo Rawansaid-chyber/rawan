@@ -93,7 +93,7 @@ export default function Portfolio({ sectionRef }: { sectionRef?: React.RefObject
                   <div style={{ color: accentColor, background: `${accentColor}22`, padding: '7px', borderRadius: 8 }}>
                     {ICON_MAP[project.icon]}
                   </div>
-                  {!project.badge && (
+                  {!(project.image && project.badge) && (
                     <span style={{
                       padding: '3px 8px',
                       background: 'var(--bg-secondary)',
@@ -103,7 +103,7 @@ export default function Portfolio({ sectionRef }: { sectionRef?: React.RefObject
                       fontFamily: 'JetBrains Mono, monospace',
                       color: 'var(--text-muted)',
                     }}>
-                      {project.id}
+                      {project.badge ?? project.id}
                     </span>
                   )}
                 </div>
