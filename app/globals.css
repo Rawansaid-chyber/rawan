@@ -1,0 +1,1408 @@
+@import "tailwindcss";
+
+/* ── CSS Custom Properties — Base (constant) ──────────────── */
+:root {
+  --bg-base:        #0a0e14;
+  --bg-panel:       #0d1117;
+  --bg-secondary:   #11161d;
+  --bg-hover:       #161b22;
+  --border:         #1e2530;
+  --border-light:   #2a3441;
+  --text-primary:   #c9d1d9;
+  --text-muted:     #6e7681;
+  --text-dim:       #3d4451;
+
+  /* Syntax highlight — Cyberpunk inspired */
+  --syn-keyword:    #FF2A6D;
+  --syn-string:     #05D9E8;
+  --syn-function:   #FFC000;
+  --syn-type:       #01FFC3;
+  --syn-property:   #B026FF;
+  --syn-comment:    #7E8C9A;
+  --syn-number:     #FF70A6;
+  --syn-operator:   #FF2A6D;
+
+  /* Accent — Amber (default) */
+  --accent:         #FF9E00;
+  --accent-soft:    #FF9E0088;
+  --accent-glow:    #FF9E0055;
+  --accent-dim:     #D17F00;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* ── Theme Variants ───────────────────────────────────────── */
+[data-theme="amber"] {
+  --accent:      #FF9E00;
+  --accent-soft: #FF9E0088;
+  --accent-glow: #FF9E0055;
+  --accent-dim:  #D17F00;
+}
+[data-theme="violet"] {
+  --accent:      #B026FF;
+  --accent-soft: #B026FF88;
+  --accent-glow: #B026FF55;
+  --accent-dim:  #8B12D6;
+}
+[data-theme="teal"] {
+  --accent:      #00FFD1;
+  --accent-soft: #00FFD188;
+  --accent-glow: #00FFD155;
+  --accent-dim:  #00CCB8;
+}
+[data-theme="rose"] {
+  --accent:      #FF007F;
+  --accent-soft: #FF007F88;
+  --accent-glow: #FF007F55;
+  --accent-dim:  #CC0066;
+}
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Smooth accent color transitions */
+*, *::before, *::after {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* Preserve transition exceptions */
+.no-transition { transition: none !important; }
+.instant { transition-duration: 0ms !important; }
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ── Typography ───────────────────────────────────────────── */
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* ── IDE Shell Layout ─────────────────────────────────────── */
+.ide-shell {
+  display: grid;
+  grid-template-rows: 40px 36px 1fr 24px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-areas:
+    "title-bar title-bar"
+    "tab-bar   tab-bar"
+    "sidebar   content"
+    "status    status";
+  height: 100dvh;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .ide-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 40px 36px 1fr 48px 24px;
+    grid-template-areas:
+      "title-bar"
+      "tab-bar"
+      "content"
+      "mobile-nav"
+      "status";
+  }
+  .ide-sidebar { display: none !important; }
+}
+
+/* ── IDE Title Bar ────────────────────────────────────────── */
+.ide-title-bar {
+  grid-area: title-bar;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 12px;
+  user-select: none;
+}
+
+.traffic-lights { display: flex; gap: 6px; align-items: center; }
+.traffic-light {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  cursor: default;
+}
+.tl-red    { background: #ff5f57; }
+.tl-yellow { background: #febc2e; }
+.tl-green  { background: #28c840; }
+
+.title-path {
+  flex: 1;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.theme-dots { display: flex; gap: 6px; align-items: center; }
+.theme-dot {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.theme-dot:hover { transform: scale(1.25); }
+.theme-dot.active { border-color: white; }
+
+/* ── IDE Tab Bar ──────────────────────────────────────────── */
+.ide-tab-bar {
+  grid-area: tab-bar;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ide-tab-bar::-webkit-scrollbar { display: none; }
+
+.ide-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, background 0.15s;
+}
+.ide-tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+.ide-tab.active {
+  color: var(--text-primary);
+  background: var(--bg-base);
+  border-bottom-color: var(--accent);
+}
+
+/* ── IDE Sidebar ──────────────────────────────────────────── */
+.ide-sidebar {
+  grid-area: sidebar;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.sidebar-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 12px 12px 6px;
+  text-transform: uppercase;
+}
+
+.sidebar-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.sidebar-file:hover { color: var(--text-primary); background: var(--bg-hover); }
+.sidebar-file.active {
+  color: var(--text-primary);
+  border-left-color: var(--accent);
+  background: var(--bg-hover);
+}
+
+.sidebar-stats {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  color: var(--text-muted);
+}
+.stat-val { color: #3fb950; }
+
+/* ── IDE Content Area ─────────────────────────────────────── */
+.ide-content {
+  grid-area: content;
+  overflow-y: auto;
+  background: var(--bg-base);
+  scroll-behavior: smooth;
+}
+
+/* ── IDE Status Bar ───────────────────────────────────────── */
+.ide-status-bar {
+  grid-area: status;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 16px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #000;
+  font-weight: 500;
+}
+.status-item { display: flex; align-items: center; gap: 4px; opacity: 0.85; }
+.status-sep  { opacity: 0.35; }
+.status-right { margin-left: auto; display: flex; gap: 16px; align-items: center; }
+
+@media (max-width: 640px) {
+  .ide-status-bar { gap: 10px; overflow: hidden; }
+  .status-hide-sm { display: none; }
+}
+@media (max-width: 420px) {
+  .status-right span:not(.status-item) { display: none; }
+}
+
+/* ── Section Base ─────────────────────────────────────────── */
+.section {
+  padding: 64px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+@media (max-width: 768px) { .section { padding: 40px 20px; } }
+
+.section-file-comment {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--syn-comment);
+  margin-bottom: 32px;
+}
+
+/* ── Code Block ───────────────────────────────────────────── */
+.code-block {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  position: relative;
+  overflow: hidden;
+}
+.code-block::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+}
+.code-line-num {
+  display: inline-block;
+  width: 28px;
+  color: var(--syn-comment);
+  user-select: none;
+  font-size: 12px;
+}
+.syn-keyword  { color: var(--syn-keyword); }
+.syn-string   { color: var(--syn-string); }
+.syn-fn       { color: var(--syn-function); }
+.syn-type     { color: var(--syn-type); }
+.syn-prop     { color: var(--syn-property); }
+.syn-comment  { color: var(--syn-comment); }
+.syn-number   { color: var(--syn-number); }
+.syn-accent   { color: var(--accent); }
+.syn-plain    { color: var(--text-primary); }
+
+/* ── Floating keywords bg ─────────────────────────────────── */
+.bg-keywords-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-keyword {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  user-select: none;
+  animation: kw-float ease-in-out infinite;
+  will-change: transform, opacity;
+  letter-spacing: 0.03em;
+  /* defaults in case CSS vars aren't set */
+  --dx: 10px;
+  --dy: 8px;
+}
+
+/* no nth-child split needed anymore — single unified keyframe */
+.bg-keyword:nth-child(odd)  { animation-name: kw-float; }
+.bg-keyword:nth-child(even) { animation-name: kw-float-b; }
+
+@keyframes kw-float {
+  0%   { transform: translate(0, 0) scale(0.92);      opacity: 0; }
+  12%  { opacity: 0.45; }
+  50%  { transform: translate(var(--dx), var(--dy)) scale(1.06); }
+  88%  { opacity: 0.45; }
+  100% { transform: translate(0, 0) scale(0.92);      opacity: 0; }
+}
+
+/* Mirror variant: starts at the offset, floats back to origin */
+@keyframes kw-float-b {
+  0%   { transform: translate(var(--dx), var(--dy)) scale(1.04); opacity: 0; }
+  12%  { opacity: 0.45; }
+  50%  { transform: translate(0, 0) scale(0.94); }
+  88%  { opacity: 0.45; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1.04); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-keyword { animation: none !important; opacity: 0.2; }
+}
+
+/* ── Skill Bar ────────────────────────────────────────────── */
+.skill-bar-wrap { margin-bottom: 14px; }
+.skill-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.skill-bar-track {
+  height: 5px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.skill-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+  transform-origin: left;
+}
+
+/* ── Tag Pill ─────────────────────────────────────────────── */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Timeline ─────────────────────────────────────────────── */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px; top: 8px; bottom: 8px;
+  width: 1px;
+  background: var(--border);
+}
+.timeline-item { position: relative; margin-bottom: 36px; }
+.timeline-dot {
+  position: absolute;
+  left: -21px;
+  top: 6px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--bg-base);
+  border: 2px solid var(--border);
+  z-index: 1;
+}
+.timeline-dot.current {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 4px var(--accent-glow); opacity: 0.85; }
+  50%       { box-shadow: 0 0 0 10px var(--accent-glow); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .timeline-dot.current { animation: none; } }
+
+.timeline-role    { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.timeline-company { font-size: 13px; color: var(--accent); margin: 2px 0; font-family: 'JetBrains Mono', monospace; }
+.timeline-date    { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+.timeline-bullets { margin-top: 10px; padding-left: 16px; }
+.timeline-bullets li {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  line-height: 1.55;
+}
+
+/* ── Stack Icon Card ──────────────────────────────────────── */
+.stack-icon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: default;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.stack-icon-card:hover {
+  transform: translateY(-4px) scale(1.05);
+  border-color: var(--accent);
+  box-shadow: 0 8px 30px var(--accent-glow), inset 0 0 8px var(--accent-glow);
+}
+.stack-icon-card span {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── Terminal Block ───────────────────────────────────────── */
+.terminal-block {
+  background: #020408;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.term-prompt { color: var(--accent); }
+.term-cmd    { color: var(--text-primary); }
+.term-ok     { color: #3fb950; }
+.term-info   { color: var(--syn-type); }
+.term-warn   { color: var(--syn-function); }
+
+/* ── Project Card ─────────────────────────────────────────── */
+.project-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.project-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 40px var(--accent-glow), inset 0 0 12px var(--accent-glow);
+  transform: translateY(-4px) scale(1.01);
+}
+.project-namespace {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--syn-comment);
+  margin-bottom: 6px;
+}
+.project-title   { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.project-desc    { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+.project-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-soft);
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+}
+
+/* ── Preview Card ─────────────────────────────────────────── */
+.preview-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+  min-width: 220px;
+}
+.preview-avatar {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-light);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+.preview-rendering {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+}
+.rendering-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+/* ── CTA Buttons ──────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #000;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  text-decoration: none;
+}
+.btn-primary:hover { 
+  transform: scale(1.05); 
+  opacity: 1; 
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.btn-outline:hover { 
+  border-color: var(--accent); 
+  color: var(--accent); 
+  box-shadow: 0 0 15px var(--accent-glow);
+  transform: scale(1.03);
+}
+
+/* ── Download CV sidebar button ───────────────────────────── */
+.btn-dl-cv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px;
+  padding: 8px;
+  background: var(--accent);
+  color: #000;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.btn-dl-cv:hover { opacity: 0.85; }
+
+/* ── Glow heading ─────────────────────────────────────────── */
+.glow-accent { color: var(--accent); }
+
+/* ── Available pill ───────────────────────────────────────── */
+.available-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: #16341c;
+  border: 1px solid #2ea043;
+  border-radius: 999px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #3fb950;
+}
+.available-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #3fb950;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ── GIS widget ───────────────────────────────────────────── */
+.gis-input {
+  width: 100%;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.gis-input:focus { border-color: var(--accent); }
+
+/* ── Section headline ─────────────────────────────────────── */
+.section-h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+/* ── Focus ring ───────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Mobile bottom nav ────────────────────────────────────── */
+.mobile-nav {
+  grid-area: mobile-nav;
+  display: none;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.mobile-nav::-webkit-scrollbar { display: none; }
+@media (max-width: 768px) { .mobile-nav { display: flex; } }
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 10px;
+  min-width: 64px;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.mobile-nav-item.active { color: var(--accent); }
+
+/* ═══════════════════════════════════════════════════════════
+   ARABIC / RTL SUPPORT
+   Applied via html.lang-ar + html[dir="rtl"]
+   ═══════════════════════════════════════════════════════════ */
+
+/* Arabic body font — Cairo is designed for Arabic + Latin */
+html.lang-ar body,
+html.lang-ar .section h2,
+html.lang-ar .section p,
+html.lang-ar .section h1,
+html.lang-ar h3 {
+  font-family: 'Cairo', 'Inter', sans-serif;
+}
+
+/* Preserve monospace for code blocks */
+html.lang-ar .code-block,
+html.lang-ar .section-file-comment,
+html.lang-ar .project-namespace,
+html.lang-ar .hero-role-line,
+html.lang-ar .timeline-hash,
+html.lang-ar .terminal-block,
+html.lang-ar .contact-response-badge,
+html.lang-ar .contact-terminal-chrome-title,
+html.lang-ar .syn-keyword,
+html.lang-ar .syn-plain,
+html.lang-ar .syn-string,
+html.lang-ar .syn-fn,
+html.lang-ar .syn-prop,
+html.lang-ar .syn-number,
+html.lang-ar .syn-comment,
+html.lang-ar .syn-type,
+html.lang-ar .code-line-num,
+html.lang-ar [style*="JetBrains Mono"],
+html.lang-ar [style*="monospace"] {
+  font-family: 'JetBrains Mono', monospace !important;
+  direction: ltr !important;
+  unicode-bidi: embed;
+}
+
+/* ── IDE Shell RTL ──────────────────────────────────────── */
+html[dir="rtl"] .ide-shell {
+  direction: rtl;
+}
+
+/* Sidebar flips to the right in RTL */
+html[dir="rtl"] .ide-sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border);
+  order: 2;   /* moves after content */
+}
+
+html[dir="rtl"] .ide-content {
+  order: 1;
+}
+
+/* Title bar text alignment */
+html[dir="rtl"] .title-path {
+  direction: ltr;  /* breadcrumb path stays LTR */
+}
+
+/* ── Section text alignment ─────────────────────────────── */
+html[dir="rtl"] .section {
+  text-align: right;
+}
+
+html[dir="rtl"] .section-h2,
+html[dir="rtl"] .section-file-comment {
+  text-align: right;
+}
+
+/* ── Timeline RTL ───────────────────────────────────────── */
+html[dir="rtl"] .timeline-item {
+  padding-left: 0;
+  padding-right: 20px;
+  border-left: none;
+  border-right: 2px solid var(--border);
+}
+
+html[dir="rtl"] .timeline-dot {
+  left: auto;
+  right: -5px;
+}
+
+/* ── Tag pills + chips ───────────────────────────────────── */
+html[dir="rtl"] .tag-pill,
+html[dir="rtl"] .available-pill {
+  direction: ltr;  /* icons + short labels stay LTR */
+}
+
+/* ── Skill bars ─────────────────────────────────────────── */
+html[dir="rtl"] .skill-bar-header {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .skill-bar-fill {
+  transform-origin: right center;
+}
+
+/* ── Status bar ─────────────────────────────────────────── */
+html[dir="rtl"] .ide-status-bar {
+  flex-direction: row-reverse;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+html[dir="rtl"] .btn-primary,
+html[dir="rtl"] .btn-outline {
+  flex-direction: row-reverse;
+}
+
+/* ── Photo gallery scrolls correctly ───────────────────── */
+html[dir="rtl"] [style*="overflowX: auto"] {
+  direction: rtl;
+}
+
+/* ── Project cards ──────────────────────────────────────── */
+html[dir="rtl"] .project-card {
+  text-align: right;
+}
+
+html[dir="rtl"] .project-namespace,
+html[dir="rtl"] .project-title,
+html[dir="rtl"] .project-desc {
+  text-align: right;
+}
+
+/* ── Mobile nav RTL ─────────────────────────────────────── */
+html[dir="rtl"] .mobile-nav {
+  direction: rtl;
+}
+
+/* ── Hero preview panel stays LTR ──────────────────────── */
+html[dir="rtl"] aside {
+  direction: ltr;
+}
+
+/* ── Headings extra weight for Arabic ───────────────────── */
+html.lang-ar .section-h2,
+html.lang-ar h1,
+html.lang-ar h2,
+html.lang-ar h3 {
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+/* ── Smooth transition on direction switch ──────────────── */
+html {
+  transition: font-size 0.2s ease;
+}
+
+/* ── Responsive Refinements ─────────────────────────────── */
+.hero-layout {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 0;
+}
+.hero-left {
+  position: relative;
+  z-index: 1;
+  padding: 48px 32px 64px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.hero-right {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px;
+  gap: 20px;
+  z-index: 2;
+  overflow-y: auto;
+}
+
+.about-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 48px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .hero-layout {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .hero-left {
+    padding: 32px 20px 48px 20px;
+  }
+  .hero-right {
+    position: relative;
+    height: auto;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 24px 20px;
+  }
+  .about-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ide-title-bar {
+    justify-content: space-between;
+  }
+  .title-path {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   HERO REDESIGN — Terminal Identity
+══════════════════════════════════════════════════ */
+
+/* ── Gradient Name ───────────────────────────────── */
+.hero-name-gradient {
+  font-size: clamp(40px, 5.5vw, 68px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-dim) 40%,
+    #ffffff88 70%,
+    var(--accent) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 6s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+/* ── Typewriter Role ─────────────────────────────── */
+.hero-role-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(14px, 1.8vw, 20px);
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+}
+.hero-role-prefix {
+  color: var(--syn-type);
+  margin-right: 6px;
+}
+.hero-role-suffix {
+  color: var(--syn-type);
+  margin-left: 6px;
+}
+.hero-role-typed {
+  color: var(--accent);
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--accent);
+  animation: blink-cursor 0.75s step-end infinite;
+}
+@keyframes blink-cursor {
+  0%, 100% { border-color: var(--accent); }
+  50%       { border-color: transparent; }
+}
+
+/* ── Hero Stat Row ───────────────────────────────── */
+.hero-stats {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hero-stat-num {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  text-shadow: 0 0 18px var(--accent-glow);
+}
+.hero-stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Avatar with scanline ────────────────────────── */
+.avatar-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.avatar-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--accent-soft);
+  box-shadow:
+    0 0 0 4px var(--accent-glow),
+    0 0 0 8px color-mix(in srgb, var(--accent) 10%, transparent),
+    0 0 40px var(--accent-glow);
+}
+.avatar-ring img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Scanline sweep */
+.avatar-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 25%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 100% 40%;
+  background-repeat: no-repeat;
+  animation: scanline 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scanline {
+  0%   { background-position: 0 -40%; opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { background-position: 0 140%; opacity: 0; }
+}
+
+/* Available dot on avatar */
+.avatar-status-dot {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3fb950;
+  border: 3px solid var(--bg-secondary);
+  box-shadow: 0 0 8px #3fb95099;
+}
+
+/* ── Right panel language activity bars ─────────── */
+.lang-activity {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lang-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.lang-activity-label {
+  width: 68px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+.lang-activity-track {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-hover);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.lang-activity-bar {
+  height: 100%;
+  border-radius: 2px;
+  animation: grow-bar 1.2s ease-out both;
+  transform-origin: left;
+}
+@keyframes grow-bar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.lang-activity-pct {
+  width: 28px;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+/* ── Vignette backdrop behind hero content ───────── */
+.hero-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 70% at 30% 50%,
+    color-mix(in srgb, var(--bg-base) 85%, transparent) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+.hero-left > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Responsive tweaks ───────────────────────────── */
+@media (max-width: 900px) {
+  .hero-name-gradient {
+    font-size: clamp(36px, 8vw, 52px);
+  }
+  .hero-stats {
+    gap: 20px;
+  }
+  .avatar-wrap {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   SECTION ENHANCEMENTS
+══════════════════════════════════════════════════ */
+
+/* ── README card (About bio wrapper) ───────────── */
+.readme-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.readme-card-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.readme-card-bar-icon {
+  font-size: 13px;
+}
+.readme-card-bar-title {
+  flex: 1;
+}
+.readme-card-action {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+  cursor: default;
+  transition: border-color 0.15s, color 0.15s;
+}
+.readme-card-action:hover {
+  border-color: var(--accent-soft);
+  color: var(--accent);
+}
+.readme-card-body {
+  padding: 20px 24px;
+}
+
+/* ── Timeline git-log style ─────────────────────── */
+.timeline-hash {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--syn-comment);
+  margin-right: 8px;
+  letter-spacing: 0.04em;
+}
+.timeline-head-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.git-log-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  padding: 8px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Photo gallery cards ─────────────────────────── */
+.photo-card {
+  flex-shrink: 0;
+  width: 220px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+  cursor: default;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.photo-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+}
+.photo-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s;
+}
+.photo-card:hover img {
+  transform: scale(1.06);
+}
+.photo-card-overlay {
+  position: absolute;
+  inset: 0;
+  bottom: auto;
+  height: 160px;
+  background: rgba(0,0,0,0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s;
+}
+.photo-card:hover .photo-card-overlay {
+  background: rgba(0,0,0,0.55);
+}
+.photo-card-overlay-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.25s;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 4px;
+}
+.photo-card:hover .photo-card-overlay-text {
+  opacity: 1;
+}
+.photo-card-label {
+  padding: 8px 10px;
+  background: var(--bg-secondary);
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+}
+
+/* ── Stack card — icon-color glow on hover ───────── */
+.stack-icon-card {
+  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s !important;
+}
+.stack-icon-card:hover {
+  transform: translateY(-4px) scale(1.06) !important;
+  border-color: var(--icon-color, var(--accent)) !important;
+  box-shadow:
+    0 8px 24px color-mix(in srgb, var(--icon-color, var(--accent)) 35%, transparent),
+    inset 0 0 8px color-mix(in srgb, var(--icon-color, var(--accent)) 12%, transparent) !important;
+}
+
+/* ── Project card — colored top border ────────────── */
+.project-card-top {
+  height: 3px;
+  width: 100%;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* ── Project card image — hover overlay ───────────── */
+.project-img-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.project-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  opacity: 0;
+  letter-spacing: 0.04em;
+  transition: background 0.25s, opacity 0.25s;
+}
+.project-card:hover .project-img-overlay {
+  background: rgba(0,0,0,0.55);
+  opacity: 1;
+}
+
+/* ── GIS widget responsive stacking ───────────────── */
+@media (max-width: 700px) {
+  .gis-widget-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .gis-map-wrap {
+    height: 380px !important;
+  }
+}
+
+/* ── Contact terminal chrome ──────────────────────── */
+.contact-terminal {
+  background: #020408;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.contact-terminal-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.contact-terminal-chrome-title {
+  flex: 1;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.contact-terminal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contact-response-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+.contact-response-badge .badge-key {
+  color: var(--syn-property);
+}
+.contact-response-badge .badge-val {
+  color: var(--syn-string);
+}
