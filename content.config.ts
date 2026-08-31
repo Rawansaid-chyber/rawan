@@ -43,12 +43,28 @@ export const about = {
 
 export const timeline = [
   {
+    role: 'Testing, Quality Assurance & Application Security Specialist',
+    company: '360Remit',
+    location: 'Muscat, OM',
+    start: 'Dec 2025',
+    end: 'Present',
+    current: true,
+    bullets: [
+      'Test planning, execution, and end-to-end QA across functional, integration, regression, UAT, API, and security testing cycles.',
+      'Validation of business, technical, and security requirements against functional specifications.',
+      'Defect and vulnerability tracking in close collaboration with developers through to resolution.',
+      'Cybersecurity validation for the mobile app and Admin Portal — authentication, session management, access control, and secure workflows.',
+      'Secure API and payment testing — wallet transactions, remittances, payment gateways, card payments, and fintech integrations.',
+      'Release validation, production verification, and audit-ready test documentation.',
+    ],
+  },
+  {
     role: 'GIS Programmer (Training)',
     company: 'Geo Solutions',
     location: 'Muscat, OM',
     start: '2024',
-    end: 'Present',
-    current: true,
+    end: 'Jul 2025',
+    current: false,
     bullets: [
       'Spatial data management, analysis, and web-layer publishing using ArcGIS Pro.',
       'Water infrastructure asset mapping — valves, hydrants, service connections — with ArcGIS Enterprise.',
