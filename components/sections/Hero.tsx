@@ -80,7 +80,7 @@ function FloatingKeywords() {
               animationDuration:  `${duration}s`,
               animationDelay:     `-${delay}s`,
               color,
-              textShadow: `0 0 8px ${glow}99, 0 0 20px ${glow}55, 0 0 40px ${glow}22`,
+              textShadow: `0 0 12px ${glow}66`,
               ['--dx' as any]: `${driftX}px`,
               ['--dy' as any]: `${driftY}px`,
             }}

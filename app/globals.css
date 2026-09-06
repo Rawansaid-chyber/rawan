@@ -967,12 +967,16 @@ html {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradient-shift 6s ease-in-out infinite;
+  animation: gradient-shift 6s ease-in-out 4;
 }
 
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
   50%       { background-position: 100% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-name-gradient { animation: none; background-position: 0% 50%; }
 }
 
 /* ── Typewriter Role ─────────────────────────────── */
@@ -1072,7 +1076,7 @@ html {
   );
   background-size: 100% 40%;
   background-repeat: no-repeat;
-  animation: scanline 3s ease-in-out infinite;
+  animation: scanline 3s ease-in-out 5;
   pointer-events: none;
 }
 @keyframes scanline {
@@ -1080,6 +1084,9 @@ html {
   20%  { opacity: 1; }
   80%  { opacity: 1; }
   100% { background-position: 0 140%; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-ring::after { animation: none; opacity: 0; }
 }
 
 /* Available dot on avatar */
